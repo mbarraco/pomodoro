@@ -6,18 +6,35 @@
 import gobject
 import gtk
 import appindicator
-import os, sys
+import sys, math, datetime
 
 
 
 class Pomodoro:
 
-
-    DEFAULT_POMODORO_TIME = 30 # seconds for a pomodoro
+    DEFAULT_POMODORO_TIME = 25*60 # seconds for a pomodoro
 
     def __init__(self):
-    	self.REMAINING_POMODORO_TIME = self.DEFAULT_POMODORO_TIME
+    	self.REMAINING_POMODORO_TIME = self.DEFAULT_POMODORO_TIME + 1
+    	self.ind = appindicator.Indicator("new-pomodoro-indicator",
+                                         "clock",
+                                         appindicator.CATEGORY_APPLICATION_STATUS)
+        self.ind.set_status(appindicator.STATUS_ACTIVE)
+        self.ind.set_attention_icon("new-messages-red")
+        self.menu_setup()
+        self.ind.set_menu(self.menu)
 
+    def menu_setup(self):
+    	self.menu = gtk.Menu()
+        self.quit_item = gtk.MenuItem("Quit")
+        self.quit_item.connect("activate", self.quit)
+        self.quit_item.show()
+        self.menu.append(self.quit_item)
+
+    def quit(self, widget):
+        sys.exit(0)
+
+    	
     def start(self):
        	self.updatePomodoroTime()
        	gtk.timeout_add(1000, self.updatePomodoroTime)
@@ -28,16 +45,13 @@ class Pomodoro:
     	ret = (self.REMAINING_POMODORO_TIME != 0) 
     	if self.REMAINING_POMODORO_TIME != 0:
     		self.REMAINING_POMODORO_TIME -= 1
-    		print(self.REMAINING_POMODORO_TIME)
-		
-		return ret    		
-
-    def stop():
-    	pass
-
-    def setPomodoroTime(pomodoroTime):
-    	self.DEFAULT_POMODORO_TIME = pomodoroTime*60*1000
-
+    		self.printFormattedTime(self.REMAINING_POMODORO_TIME)
+    		# self.printFormattedTime(self.REMAINING_POMODORO_TIME)
+		return ret
+    
+    def printFormattedTime(self, remainingTime):
+    	time2print = str(datetime.timedelta(seconds = remainingTime))
+    	self.ind.set_label(time2print[2:])
 
 if __name__ == "__main__":		
 
