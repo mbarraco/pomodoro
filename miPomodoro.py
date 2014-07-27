@@ -5,13 +5,20 @@
  
 import gtk
 import appindicator
-import sys, math, datetime
+import os, sys, math, datetime, pycanberra
 
 class Pomodoro:
 
     DEFAULT_POMODORO_TIME = 25*60 # seconds for a pomodoro
+    ALARM_SOUND = "alarm-clock-elapsed"
 
     def __init__(self):
+    	canberra = pycanberra.Canberra()
+    	canberra.easy_play_sync(self.ALARM_SOUND)
+    	canberra.destroy()
+
+
+
     	self.REMAINING_POMODORO_TIME = self.DEFAULT_POMODORO_TIME + 1
     	self.ind = appindicator.Indicator("new-pomodoro-indicator",
                                          "clock",
@@ -23,6 +30,22 @@ class Pomodoro:
 
     def menu_setup(self):
     	self.menu = gtk.Menu()
+
+        self.set_time_item = gtk.MenuItem("Set pomodoro ")
+        self.set_time_item.connect("activate", self.setTime)
+        self.set_time_item.show()
+        self.menu.append(self.set_time_item)
+
+        self.stop_item = gtk.MenuItem("Stop")
+        self.stop_item.connect("activate", self.stop)
+        self.stop_item.show()
+        self.menu.append(self.stop_item)
+
+        self.start_item = gtk.MenuItem("Start")
+        self.start_item.connect("activate", self.start)
+        self.start_item.show()
+        self.menu.append(self.start_item)
+
         self.quit_item = gtk.MenuItem("Quit")
         self.quit_item.connect("activate", self.quit)
         self.quit_item.show()
@@ -32,24 +55,32 @@ class Pomodoro:
         sys.exit(0)
 
     	
-    def start(self):
+    def start(self, widget):
        	self.updatePomodoroTime()
-       	gtk.timeout_add(1000, self.updatePomodoroTime)
+       	self.updateTag = gtk.timeout_add(1000, self.updatePomodoroTime)
        	gtk.main()
 
+    def stop(self, widget):
+    	gtk.timeout_remove(self.updateTag)
+    	self.REMAINING_POMODORO_TIME = self.DEFAULT_POMODORO_TIME
+    	self.printFormattedTime(self.REMAINING_POMODORO_TIME)
+    	return True
 
     def updatePomodoroTime(self):
     	ret = (self.REMAINING_POMODORO_TIME != 0) 
     	if self.REMAINING_POMODORO_TIME != 0:
     		self.REMAINING_POMODORO_TIME -= 1
-    		self.printFormattedTime(self.REMAINING_POMODORO_TIME)
-		return ret
+    	self.printFormattedTime(self.REMAINING_POMODORO_TIME)
+    	return ret
     
     def printFormattedTime(self, remainingTime):
     	time2print = str(datetime.timedelta(seconds = remainingTime))
     	self.ind.set_label(time2print[2:])
 
+    def setTime(self, widget):
+    	return True
+
 if __name__ == "__main__":		
 
 	pomodoro = Pomodoro()
-	pomodoro.start()
+	pomodoro.start(False)
