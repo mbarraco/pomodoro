@@ -9,13 +9,12 @@ import os, sys, math, datetime, pycanberra
 
 class Pomodoro:
 
-    DEFAULT_POMODORO_TIME = 25*60 # seconds for a pomodoro
+    DEFAULT_POMODORO_TIME = 4 # seconds for a pomodoro
     ALARM_SOUND = "alarm-clock-elapsed"
 
     def __init__(self):
-    	canberra = pycanberra.Canberra()
-    	canberra.easy_play_sync(self.ALARM_SOUND)
-    	canberra.destroy()
+    	self.canberra = pycanberra.Canberra()
+    	
 
 
 
@@ -70,6 +69,9 @@ class Pomodoro:
     	ret = (self.REMAINING_POMODORO_TIME != 0) 
     	if self.REMAINING_POMODORO_TIME != 0:
     		self.REMAINING_POMODORO_TIME -= 1
+    	else:
+    		self.canberra.easy_play_sync(self.ALARM_SOUND)
+    		self.canberra.destroy()
     	self.printFormattedTime(self.REMAINING_POMODORO_TIME)
     	return ret
     
