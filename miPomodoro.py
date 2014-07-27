@@ -3,12 +3,9 @@
 # author: phil ayres
 # 24 Oct 2011
  
-import gobject
 import gtk
 import appindicator
 import sys, math, datetime
-
-
 
 class Pomodoro:
 
@@ -46,7 +43,6 @@ class Pomodoro:
     	if self.REMAINING_POMODORO_TIME != 0:
     		self.REMAINING_POMODORO_TIME -= 1
     		self.printFormattedTime(self.REMAINING_POMODORO_TIME)
-    		# self.printFormattedTime(self.REMAINING_POMODORO_TIME)
 		return ret
     
     def printFormattedTime(self, remainingTime):
